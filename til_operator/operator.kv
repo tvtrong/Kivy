@@ -1,0 +1,319 @@
+#:import ZBarCam kivy_garden.zbarcam.ZBarCam
+#:import ZBarSymbol pyzbar.pyzbar.ZBarSymbol
+#:import QRCodeWidget kivy_garden.qrcode
+<MyTextInput@TextInput>:
+    font_size: '14dp'
+    background_color: (0,0,0,0)
+    cursor_color: (1,0,0,1)
+    canvas.before:
+        Color:
+            rgba: (.06,.45,.45,1)
+    canvas.after:
+        Color:
+            rgb: (.06,.45,.45,1)
+        Ellipse:
+            angle_start:180
+            angle_end:360
+            pos:(self.pos[0] - self.size[1]/2.0, self.pos[1])
+            size: (self.size[1], self.size[1])
+        Ellipse:
+            angle_start:360
+            angle_end:540
+            pos: (self.size[0] + self.pos[0] - self.size[1]/2.0, self.pos[1])
+            size: (self.size[1], self.size[1])
+        Color:
+            rgba: (.06,.45,.45,1)
+        Line:
+            points: self.pos[0] , self.pos[1], self.pos[0] + self.size[0], self.pos[1]
+        Line:
+            points: self.pos[0], self.pos[1] + self.size[1], self.pos[0] + self.size[0], self.pos[1] + self.size[1]
+        Line:
+            ellipse: self.pos[0] - self.size[1]/2.0, self.pos[1], self.size[1], self.size[1], 180, 360
+        Line:
+            ellipse: self.size[0] + self.pos[0] - self.size[1]/2.0, self.pos[1], self.size[1], self.size[1], 360, 540
+
+<FlatButton@ButtonBehavior+Label>:
+    font_size: 14
+<OperatorWindow>:
+    id: main_win
+    orientation: "vertical"
+    loggedin_user: loggedin_user.__self__
+    canvas.before:
+        Color:
+            rgba: (36/255.0,55/255.0,65/255.0,1)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    BoxLayout:
+        id: header
+        size_hint_y: None
+        height: 40
+        canvas.before:
+            Color:
+                rgba: (.06,.45,.45, 1)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        Label:
+            text: "POS System"
+            size_hint_x: .9
+            font_size: 25
+            bold: True
+            color: (1,1,1,1)
+        FlatButton:
+            id: loggedin_user
+            text: ""
+            color: (1,1,1,1)
+            size_hint_x: .1
+            font_size: 25
+            bold: True
+            on_release: root.logout()
+    BoxLayout:
+        id: current
+        size_hint_y: None
+        height: 50
+        canvas.before:
+            Color:
+                rgba: (1,1,1,1)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        ToggleButton:
+            text: "Cart"
+            background_normal: ""
+            background_color: (.06,.32,.32, 1)
+            size_hint_x: .1
+            group: 'top_navs'
+            state: 'down'
+            on_state: root.change_screen(self)
+        ToggleButton:
+            id: cur_product
+            text: "QRCode"
+            background_normal: ""
+            background_color: (.06,.4,.4, 1)
+            size_hint_x: .1
+            group: 'top_navs'
+            on_state: root.change_screen(self)
+    BoxLayout:
+        id: all_content
+        padding: 10
+        ScreenManager:
+            id: scrn_mngr
+            Screen:
+                id: scrn_pd
+                name: 'scrn_cart'
+                BoxLayout:
+                    id: contentp
+                    orientation: 'horizontal'
+                    BoxLayout:
+                        id: Product_details
+                        orientation: 'vertical'
+                        size_hint_x: .8
+                        spacing:10
+                        BoxLayout:
+                            id: product_labels
+                            size_hint_y: None
+                            height: 40
+                            canvas.before:
+                                Color:
+                                    rgba: (.06,.45,.45,1)
+                                RoundedRectangle:
+                                    size: self.size
+                                    pos: self.pos
+                            FlatButton:
+                                text: "Qty"
+                                size_hint_x: .1
+                            FlatButton:
+                                text: "Product Code"
+                                size_hint_x: .3
+                            FlatButton:
+                                text: "Disc"
+                                size_hint_x: .1
+                            FlatButton:
+                                text: "Disc %"
+                                size_hint_x: .1
+                            FlatButton:
+                                text: "VAT"
+                                size_hint_x: .1
+                            FlatButton:
+                                text: "Price"
+                                size_hint_x: .1
+                            FlatButton:
+                                text: "Product Total"
+                                size_hint_x: .2
+                        BoxLayout:
+                            id: product_input
+                            size_hint_y: None
+                            height: 30
+                            spacing: 5
+                            bold: True
+                            cursor_color: (1,0,0,0)
+                            font_size: self.height*0.5
+                            TextInput:
+                                id:qty_inp
+                                size_hint_x: .1
+                                multiline: False
+                                hint_text: 'Quantity'
+                            TextInput:
+                                id:code_inp
+                                focus: True
+                                size_hint_x: .3
+                                multiline: False
+                                foreground_color: (0,0,1,1)
+                                hint_text: 'Product Code'
+                                # hit Enter
+                                on_text_validate: root.update_purchases()
+                            TextInput:
+                                id:disc_inp
+                                size_hint_x: .1
+                                multiline: False
+                                hint_text: 'Discount'
+                            TextInput:
+                                id:disc_perc_inp
+                                size_hint_x: .1
+                                multiline: False
+                                hint_text: 'Discount percent'
+                            TextInput:
+                                id:vat_inp
+                                size_hint_x: .1
+                                multiline: False
+                                hint_text: 'VAT'
+                            TextInput:
+                                id:price_inp
+                                size_hint_x: .1
+                                multiline: False
+                                hint_text: 'Price'
+                            TextInput:
+                                id:total_inp
+                                size_hint_x: .2
+                                multiline: False
+                                hint_text: 'Total'
+                        BoxLayout:
+                            id: add_to_card
+                            orientation: 'vertical'
+                            size_hint_y: None
+                            height: 40
+                            BoxLayout:
+                                canvas.before:
+                                    Color:
+                                        rgba: (.06,.45,.45,1)
+                                    RoundedRectangle:
+                                        size: self.size
+                                        pos: self.pos
+                                Label:
+                                    text: "Code"
+                                    size_hint_x: .2
+                                Label:
+                                    text: "Product Name"
+                                    size_hint_x: .3
+                                Label:
+                                    text: "Qty"
+                                    size_hint_x: .1
+                                Label:
+                                    text: "Disc"
+                                    size_hint_x: .1
+                                Label:
+                                    text: "Price"
+                                    size_hint_x: .1
+                                Label:
+                                    text: "Product Total"
+                                    size_hint_x: .2
+                        GridLayout:
+                            id: Products
+                            cols: 1
+                    BoxLayout:
+                        id: preview
+                        orientation: 'vertical'
+                        size_hint_x: .2
+                        canvas.before:
+                            Color:
+                                rgba: (.06,.45,.45,1)
+                            Rectangle:
+                                size: self.size
+                                pos: self.pos
+                        TextInput:
+                            id: receipt_preview
+                            readonly: True
+                            auto_indent: True
+                            background_color: (.06,.32,.32, 1)
+                            background_active: 'green'
+                            font_size: '15sp'
+                            foreground_color: (1,1,1,1)
+                            border: (.06,.45,.45,1)
+                            text: "The Collector\n 1 Ngo Van So St\nNha Trang City,Khanh Hoa province\n\nTel: +(84) 888 365 485\nReceipt No: \nDate: \n\n"
+            Screen:
+                id: screen2
+                name: 'scrn_code'
+                #text_in: text_in
+                #memberStatus: memberStatus
+                BoxLayout:
+                    orientation: 'vertical'
+                    #Label: 
+                    #    id: memberStatus
+                    #TextInput:
+                    #    id: text_in
+                    #    size_hint_y: None
+                    #    pos_hint: {'center_x': .5, 'center_y': 0}
+                    #    height: 40
+                    #    size_hint_x: .3
+                    #    multiline: False
+                    #    on_text_validate:
+                    #        root.process_barcode()
+                    TabbedPanel:
+                        size_hint: 1, 1
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+                        #pos_hint: {'center_x': .5, 'center_y': .5}
+                        do_default_tab: False
+                        TabbedPanelItem:
+                            text: "Scan"
+                            GridLayout:
+                                cols: 2
+                                rows: 1
+                                padding: [5,5,5,5]
+                                orientation: 'horizontal'
+                                ZBarCam:
+                                    id: zbarcam
+                                    # optional, by default checks all types
+                                    code_types: ZBarSymbol.QRCODE, ZBarSymbol.EAN13
+                                    pos_hint: {'center_x': 1, 'center_y': 1}
+                                    size_hint: [1, 1]
+                                Label:
+                                    id: qrlabel
+                                    #size_hint: None, None
+                                    size: self.texture_size[0], 50
+                                    pos_hint: {'center_x': 1, 'center_y': 1}
+                                    halign: "center"
+                                    text: ', '.join([str(symbol.data) for symbol in zbarcam.symbols])
+                                    on_text: root.calc(self.text)
+                                    opacity: 1
+                        TabbedPanelItem:
+                            text: "Generate"
+                            BoxLayout:
+                                orientation: 'vertical'
+                                padding: "16dp"
+                                spacing: "16dp"
+                                TextInput:
+                                    id: txtfld
+                                    pos_hint: {'center_x': 0.5, 'center_y': 0.75}
+                                    size_hint: [0.8,0.2]
+                                    hint_text: "Text to be encoded"
+                                    mode: "rectangle"
+                                    on_text: qr.data = txtfld.text
+                                QRCodeWidget:
+                                    id: qr
+                                    data: ''
+                                    size_hint: [0.8,0.3]
+                                    pos_hint: {'center_x': 0.5, 'center_y': 0.3}
+                                    show_border: False 
+    BoxLayout:
+        id: footer
+        size_hint_y: None
+        height: 30
+        canvas.before:
+            Color:
+                rgba: (.06,.45,.45,1)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        Label:
+            text: "Maintained by RQS Co.Ltd"

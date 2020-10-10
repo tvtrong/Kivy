@@ -1,0 +1,107 @@
+#:import utils kivy.utils
+<FlatButton@ButtonBehavior+Label>:
+    font_size: 16
+<SigninWindow>:
+    id: main_win
+    orientation: "vertical"
+    spacing: 10
+    space_x: self.size[0]/9
+    canvas.before:
+        Color:
+            rgba: (36/255.0,55/255.0,65/255.0,1)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        canvas.before:
+            Color:
+                rgba: (.06,.45,.45, 1)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        Label:
+            text: "Access Control"
+            bold: True
+            size_hint_x: .9 # 90%
+        FlatButton:
+            text: ""
+            size_hint_x: .1 # 10%
+    BoxLayout:
+        id: bg
+        orientation: "vertical"
+        padding: main_win.space_x, 10
+        #spacing: 20
+        BoxLayout:
+            id: card
+            orientation: "vertical"
+            spacing: 5
+            size_hint_y: None
+            height: 100
+            Label:
+                id: info
+                text: ''
+                markup: True
+                size_hint_y: None
+                height: 20
+            TextInput:
+                id: username_field
+                helper_text: 'rqspos'
+                helper_text_mode: 'on_focus'
+                icon_right: 'email-sync'
+                hint_text: "Username"
+                multiline: False
+                focus: True
+                border: (.06,.45,.45,1)
+                cursor_blink: True
+                padding: [5,5,5,5]
+                font_size: 21
+                halign: 'center'
+                hint_text_color: (1,1,1,1)
+                background_color: (143/255,219/255,223/255,1)
+                cursor_color: (1,0,0,1)
+                on_text_validate: pwd_field.focus = True
+            TextInput:
+                id: pwd_field
+                helper_text: 'rqspos'
+                helper_text_mode: 'on_focus'
+                icon_right: 'eye-off'
+                hint_text: "Password"
+                multiline: False
+                password: True
+                password_mask: '$'
+                border: (.06,.45,.45,1)
+                cursor_blink: True
+                padding: [5,5,5,5]
+                background_color: (143/255,219/255,223/255,1)
+                font_size: 21
+                halign: 'center'
+                hint_text_color: (1,1,1,1)
+                cursor_color: (1,0,0,1)
+                on_text_validate: root.validate_user()
+        Label:
+            id: sp
+            size_hint_y:None
+            height: 50
+        Button:
+            size_hint_y: None
+            height: 40
+            text: "Sign In"
+            background_color: (.06,.45,.45,1)
+            background_normal: "" # overide
+            on_release: root.validate_user()
+        Label:
+            id: sp2
+    BoxLayout:
+        id: footer
+        size_hint_y: None
+        height: 30
+        canvas.before:
+            Color:
+                rgba: (.06,.45,.45,1)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        Label:
+            text: "Maintained by RQS Co.Ltd"
